@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -26,6 +27,10 @@ class Author(Base):
     books: Mapped[list["Book"]] = relationship("Book", back_populates="author")
 
 
+    def __repr__(self):
+        return f"Author(id={self.id}, name={self.name}, craated_at={self.created_at})"
+
+
 class Book(Base):
     __tablename__ = "books"
 
@@ -46,6 +51,10 @@ class Book(Base):
     borrows: Mapped[list["Borrow"]] = relationship("Borrow", back_populates="book")
 
 
+    def __repr__(self):
+        return f"Book(id={self.id}, title={self.title}, published_year={self.published_year}, author_id={self.author_id}, is_available={self.is_available}, created_at={self.created_at}, updated_at={self.updated_at})"
+
+
 class Student(Base):
     __tablename__ = "students"
 
@@ -60,6 +69,9 @@ class Student(Base):
     borrows: Mapped[list["Borrow"]] = relationship("Borrow", back_populates="student")
 
 
+    def __repr__(self):
+        return f"Student(id={self.id}, full_name={self.full_name}, email={self.email}, grade={self.grade}, registered_at={self.registered_at})"
+
 class Borrow(Base):
     __tablename__ = "borrows"
 
@@ -70,9 +82,13 @@ class Borrow(Base):
         DateTime, server_default=func.now(), nullable=False
     )
     due_date: Mapped[datetime] = mapped_column(
-        DateTime, server_default=text("NOW() + INTERVAL '14 hour'"), nullable=False
+        DateTime, server_default=text("NOW() + INTERVAL '14 day'"), nullable=False
     )
-    returned_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    returned_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     student: Mapped["Student"] = relationship("Student", back_populates="borrows")
     book: Mapped["Book"] = relationship("Book", back_populates="borrows")
+
+
+    def __repr__(self):
+        return f"Borrow(id={self.id}, student_id={self.student_id}, book_id={self.book_id}, borrowed_at={self.borrowed_at}, due_date={self.due_date}, returned_at={self.returned_at})"
